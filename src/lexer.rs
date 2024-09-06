@@ -1,7 +1,7 @@
 
 // Definindo os tokens
 #[derive(Debug, PartialEq)]
-pub(crate) enum  Token{
+pub enum Token{
     INICIO,
     Variavel(char),
     Numero(f64),
@@ -10,7 +10,7 @@ pub(crate) enum  Token{
     FIM
 }
 
-pub(crate) fn lex(input: &str) -> Vec<Token> {
+pub fn lex(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut caracteres = input.chars().peekable();
     tokens.push(Token::INICIO);

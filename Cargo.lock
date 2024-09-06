@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "CompilerInRust"
+name = "compiler_in_rust"
 version = "0.1.0"
