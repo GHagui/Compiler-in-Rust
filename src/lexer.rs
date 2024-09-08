@@ -1,47 +1,34 @@
-
-// Definindo os tokens
 #[derive(Debug, PartialEq)]
-pub enum Token{
+pub enum Token {
     INICIO,
-    Variavel(char),
+    Variavel(String),
     Numero(f64),
     Operador(char),
     Parentese(char),
-    FIM
+    FIM,
 }
 
 pub fn lex(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
-    let mut caracteres = input.chars().peekable();
     tokens.push(Token::INICIO);
-    while let Some(caractere) = caracteres.peek() {
-        match caractere {
-            'a'..='z' | 'A'..='Z' | '=' => {
-                tokens.push(Token::Variavel(*caractere));
-                caracteres.next();
-            }
-            '0'..='9' | '.' => {
-                let mut numero = String::new();
-                while let Some('0'..='9' | '.') = caracteres.peek() {
-                    numero.push(caracteres.next().unwrap());
-                }
-                tokens.push(Token::Numero(numero.parse().unwrap()));
-            }
-            '+' | '-' | '*' | '/' => {
-                tokens.push(Token::Operador(*caractere));
-                caracteres.next();
-            }
-            '(' | ')' => {
-                tokens.push(Token::Parentese(*caractere));
-                caracteres.next();
-            }
-            ' ' => {
-                caracteres.next();
-            }
-            _ => {
-                panic!("Caractere inválido: {} de \" {} \"", caractere, input);
-            }
 
+    for palavra in input.split_whitespace() {
+        match palavra.to_lowercase().as_str() {
+            "abre" => tokens.push(Token::Parentese('(')),
+            "fecha" => tokens.push(Token::Parentese(')')),
+            "mais" => tokens.push(Token::Operador('+')),
+            "menos" => tokens.push(Token::Operador('-')),
+            "vezes" => tokens.push(Token::Operador('*')),
+            "dividido" => tokens.push(Token::Operador('/')),
+            "por" => (),
+            "parênteses" => (),
+            _ => {
+                if let Ok(numero) = palavra.parse() {
+                    tokens.push(Token::Numero(numero));
+                } else {
+                    tokens.push(Token::Variavel(palavra.to_string()));
+                }
+            }
         }
     }
     tokens.push(Token::FIM);
