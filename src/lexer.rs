@@ -4,49 +4,55 @@ pub enum Token {
     Variavel(char),
     Numero(f64),
     Operador(char),
-    Comparador(char),
+    Comparador(String),
     Parentese(char),
     FIM,
 }
+
 pub fn lex(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut caracteres = input.chars().peekable();
     tokens.push(Token::INICIO);
+
     while let Some(&caractere) = caracteres.peek() {
         match caractere {
-            'a'..='z' | 'A'..='Z' | '=' => {
+            'a'..='z' | 'A'..='Z' => {
                 caracteres.next();
-
-                if caractere == '=' {
-                    if let Some(&next_char) = caracteres.peek() {
-                        if next_char == '=' {
-                            tokens.push(Token::Comparador(next_char));
-                            caracteres.next();
-                        } else {
-                            tokens.push(Token::Operador(caractere));
-                        }
+                tokens.push(Token::Variavel(caractere));
+            }
+            '=' => {
+                caracteres.next();
+                if let Some(&next_char) = caracteres.peek() {
+                    if next_char == '=' {
+                        tokens.push(Token::Comparador("==".to_string()));
+                        caracteres.next();
+                    } else {
+                        tokens.push(Token::Operador(caractere));
                     }
                 } else {
-                    tokens.push(Token::Variavel(caractere));
+                    tokens.push(Token::Operador(caractere));
                 }
             }
             '>' | '<' | '!' => {
                 caracteres.next();
-
+                let mut comparador = caractere.to_string();
                 if let Some(&next_char) = caracteres.peek() {
                     if next_char == '=' {
-                        tokens.push(Token::Comparador(caractere));
-                        tokens.push(Token::Comparador(next_char));
+                        comparador.push(next_char);
                         caracteres.next();
-                    } else {
-                        tokens.push(Token::Comparador(caractere));
                     }
                 }
+                tokens.push(Token::Comparador(comparador));
             }
             '0'..='9' | '.' => {
                 let mut numero = String::new();
-                while let Some('0'..='9' | '.') = caracteres.peek() {
-                    numero.push(caracteres.next().unwrap());
+                while let Some(c) = caracteres.peek() {
+                    if c.is_digit(10) || *c == '.' {
+                        numero.push(*c);
+                        caracteres.next();
+                    } else {
+                        break;
+                    }
                 }
                 tokens.push(Token::Numero(numero.parse().unwrap()));
             }
@@ -58,11 +64,11 @@ pub fn lex(input: &str) -> Vec<Token> {
                 tokens.push(Token::Parentese(caractere));
                 caracteres.next();
             }
-            ' ' => {
+            ' ' | '\t' | '\n' => {
                 caracteres.next();
             }
             _ => {
-                panic!("Caractere inválido: {} de \" {} \". \nTente novamente", caractere, input);
+                panic!("Caractere inválido: '{}' de \"{}\". Tente novamente.", caractere, input);
             }
         }
     }

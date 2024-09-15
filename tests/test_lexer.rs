@@ -11,7 +11,7 @@ mod tests {
         let tokens_expectativas = vec![
             Token::INICIO,
             Token::Variavel('a'),
-            Token::Variavel('='),
+            Token::Operador('='),
             Token::Numero(13.0),
             Token::FIM
         ];
@@ -101,6 +101,62 @@ mod tests {
             Token::Numero(13.5),
             Token::Operador('+'),
             Token::Numero(2.5),
+            Token::FIM
+        ];
+        assert_eq!(tokens, tokens_expectativas);
+    }
+
+    #[test]
+    fn test_lexer_comparacao_igual() {
+        let input = "13 == 13";
+        let tokens = lexer::lex(input);
+        let tokens_expectativas = vec![
+            Token::INICIO,
+            Token::Numero(13.0),
+            Token::Comparador("==".to_string()),
+            Token::Numero(13.0),
+            Token::FIM
+        ];
+        assert_eq!(tokens, tokens_expectativas);
+    }
+
+    #[test]
+    fn test_lexer_comparacao_diferente() {
+        let input = "13 != 13";
+        let tokens = lexer::lex(input);
+        let tokens_expectativas = vec![
+            Token::INICIO,
+            Token::Numero(13.0),
+            Token::Comparador("!=".to_string()),
+            Token::Numero(13.0),
+            Token::FIM
+        ];
+        assert_eq!(tokens, tokens_expectativas);
+    }
+
+    #[test]
+    fn test_lexer_comparacao_maior() {
+        let input = "13 > 13";
+        let tokens = lexer::lex(input);
+        let tokens_expectativas = vec![
+            Token::INICIO,
+            Token::Numero(13.0),
+            Token::Comparador(">".to_string()),
+            Token::Numero(13.0),
+            Token::FIM
+        ];
+        assert_eq!(tokens, tokens_expectativas);
+    }
+
+    #[test]
+    fn test_lexer_comparacao_menor() {
+        let input = "13 < 13";
+        let tokens = lexer::lex(input);
+        let tokens_expectativas = vec![
+            Token::INICIO,
+            Token::Numero(13.0),
+            Token::Comparador("<".to_string()),
+            Token::Numero(13.0),
             Token::FIM
         ];
         assert_eq!(tokens, tokens_expectativas);
