@@ -17,16 +17,16 @@ fn main() {
         }
         else {
             let tokens = lexer::lex(input);
-            println!("  Tokens gerados: {:?}", tokens);
             let expr = parser::parse(&tokens);
-            println!("  Expressão gerada: {:?}", expr);
             match expr {
                 Ok(expr) => {
+                    println!("  Tokens gerados: {:?}\n", tokens);
+                    println!("  Árvore sintática: {:?}\n", expr);
                     let result = parser::avaliar(&expr);
                     println!("  Resultado: {:?}\n", result);
                 }
                 Err(e) => {
-                    println!("{}", e);
+                    println!("{}\n", e);
                 }
             }
         }

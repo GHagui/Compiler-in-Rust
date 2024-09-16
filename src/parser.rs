@@ -16,6 +16,9 @@ pub fn criar_operacao(expr: Expr, token: &Token, rhs: Expr) -> Expr {
 }
 
 pub fn parse(tokens: &[Token]) -> Result<Expr, String> {
+    if tokens.is_empty() {
+        return Err("\x1b[31m    Erro: Expressão inválida na análise léxica. Digite 'help' para ver as expressões suportadas.\x1b[0m".to_string());
+    }
     let mut pos = 0;
     if let Some(Token::INICIO) = tokens.get(pos) {
         pos += 1;
@@ -151,8 +154,14 @@ pub fn avaliar(expr: &Expr) -> f64 {
                     0.0
                 }
             }
-            _ => panic!("Erro: Operador de comparação inválido"),
+            _ => {
+                eprintln!("\x1b[31mErro: Operador de comparação inválido\x1b[0m");
+                0.0
+            }
         },
-        _ => panic!("Erro: Expressão inválida"),
+        _ => {
+            eprintln!("\x1b[31mErro: Expressão inválida\x1b[0m");
+            0.0
+        }
     }
 }

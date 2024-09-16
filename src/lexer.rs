@@ -63,10 +63,14 @@ pub fn lex(input: &str) -> Vec<Token> {
                 caracteres.next();
             }
             _ => {
-                panic!("Caractere inválido: '{}' de \"{}\". Tente novamente.", caractere, input);
+                eprintln!("\x1b[31m    Caractere inválido: '{}' de \"{}\". Tente novamente.\x1b[0m", caractere, input);
+                tokens.clear();
+                break;
             }
         }
     }
-    tokens.push(Token::FIM);
+    if !tokens.is_empty() {
+        tokens.push(Token::FIM);
+    }
     tokens
 }
