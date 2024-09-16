@@ -24,3 +24,5 @@ jobs:
     - uses: actions/checkout@v4
     - name: Test
       run: cargo test --verbose
+    - name: Coverage
+      uses: actions-rs/tarpaulin@v0.1.0
