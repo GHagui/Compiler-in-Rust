@@ -132,17 +132,18 @@ Essa parte do código acima `match` é parecido com um switch case, onde ele ver
     caracteres.next();
     if let Some(&next_char) = caracteres.peek() {
         if next_char == '=' {
-            tokens.push(Token::Comparador("==".to_string()));
-            caracteres.next();
-        } else {
-            tokens.push(Token::Operador(caractere));
+        tokens.push(Token::Comparador("==".to_string()));
+        caracteres.next();
         }
-    } else {
-        tokens.push(Token::Operador(caractere));
+        else {
+        eprintln!("\x1b[31m    Caractere inválido: '{}' de \"{}\". Tente novamente.\x1b[0m", caractere, input);
+        tokens.clear();
+        break;
+        }
     }
 }
 ```
-No código acima, se o caractere atual for '=', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador("==") ao vetor de tokens. Caso contrário, ele adiciona o token Operador('=') ao vetor de tokens.
+No código acima, se o caractere atual for '=', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador("==") ao vetor de tokens. Caso contrário, ele exibe uma mensagem de erro em vermelho e limpa o vetor de tokens, assim evita que o usuário digite uma expressão como `=>` ou `=<`.
 
 Se o caractere atual for '>', '<' ou '!', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador(">=", "<=" ou "!=") ao vetor de tokens. Caso contrário, ele adiciona o token Comparador(">" ou "<") ao vetor de tokens. Segue o código abaixo:
 ```rust

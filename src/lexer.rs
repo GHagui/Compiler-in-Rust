@@ -21,11 +21,12 @@ pub fn lex(input: &str) -> Vec<Token> {
                     if next_char == '=' {
                         tokens.push(Token::Comparador("==".to_string()));
                         caracteres.next();
-                    } else {
-                        tokens.push(Token::Operador(caractere));
                     }
-                } else {
-                    tokens.push(Token::Operador(caractere));
+                    else {
+                        eprintln!("\x1b[31m    Caractere inválido: '{}' de \"{}\". Tente novamente.\x1b[0m", caractere, input);
+                        tokens.clear();
+                        break;
+                    }
                 }
             }
             '>' | '<' | '!' => {
