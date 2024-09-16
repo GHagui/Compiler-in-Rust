@@ -1,7 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum Token {
     INICIO,
-    Variavel(char),
     Numero(f64),
     Operador(char),
     Comparador(String),
@@ -16,10 +15,6 @@ pub fn lex(input: &str) -> Vec<Token> {
 
     while let Some(&caractere) = caracteres.peek() {
         match caractere {
-            'a'..='z' | 'A'..='Z' => {
-                caracteres.next();
-                tokens.push(Token::Variavel(caractere));
-            }
             '=' => {
                 caracteres.next();
                 if let Some(&next_char) = caracteres.peek() {

@@ -5,20 +5,6 @@ mod tests {
     use compiler_in_rust::lexer::Token;
 
     #[test]
-    fn test_lexer_declaracao_variavel() {
-        let input = "a = 13";
-        let tokens = lexer::lex(input);
-        let tokens_expectativas = vec![
-            Token::INICIO,
-            Token::Variavel('a'),
-            Token::Operador('='),
-            Token::Numero(13.0),
-            Token::FIM
-        ];
-        assert_eq!(tokens, tokens_expectativas);
-    }
-
-    #[test]
     fn test_lexer_soma() {
         let input = "13 + 2";
         let tokens = lexer::lex(input);

@@ -1,10 +1,34 @@
 mod lexer;
 mod parser;
-fn test_lexer(input: &str){
-    println!("  {}", input);
-    let tokens = lexer::lex(input);
-    println!("  {:?}\n\n", tokens);
-}
-fn main(){
-    test_lexer("14 != 13");
+
+fn main() {
+    loop {
+        let mut input = String::new();
+
+        println!("Digite uma expressão aritmética ou 'exit' para sair ou 'help' para ver as expressões suportadas:");
+        std::io::stdin().read_line(&mut input).unwrap();
+        let input = input.trim();
+        if input == "exit" {
+            break;
+        }
+        else if input == "help" {
+            println!("  Expressões aritméticas suportadas: +, -, *, /, (, ), ==, !=, >, <, >=, <=, números inteiros e decimais.");
+            println!("  Caso compare dois números, o resultado será 1.0 se a comparação for verdadeira e 0.0 se for falsa.\n");
+        }
+        else {
+            let tokens = lexer::lex(input);
+            println!("  Tokens gerados: {:?}", tokens);
+            let expr = parser::parse(&tokens);
+            println!("  Expressão gerada: {:?}", expr);
+            match expr {
+                Ok(expr) => {
+                    let result = parser::avaliar(&expr);
+                    println!("  Resultado: {:?}\n", result);
+                }
+                Err(e) => {
+                    println!("{}", e);
+                }
+            }
+        }
+    }
 }
