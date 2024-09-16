@@ -47,7 +47,7 @@ Este projeto foi desenvolvido sem o uso de bibliotecas externas, apenas com as b
 O código foi dividido em módulos para facilitar a organização e manutenção. O módulo `lexer` é responsável por realizar a análise léxica, enquanto o módulo `parser` é responsável pela análise sintática e semântica.
 
 No código principal, a função `main` é responsável por receber a entrada do usuário, chamar a função `lexer::lex` para realizar a análise léxica e, em seguida, chamar a função `parser::parse` para realizar a análise sintática e semântica. Para começar, o código principal exibe uma mensagem ao usuário e entra em um loop para que o usuário possa digitar várias expressões sem precisar reiniciar o programa.
-No código `main.rs`:
+No código `main.rs` abaixo:
 ```rust
 fn main() {
     loop {
@@ -87,7 +87,7 @@ else {
     }
 }
 ```
-O caso `help` exibe as expressões suportadas pelo compilador. O 'exit' encerra o programa. Se o usuário digite a expressão, o programa chama a função `lexer::lex(input)` para realizar a análise léxica e a função `parser::parse(tokens)` para realizar a análise sintática e semântica. Em seguida, exibe os tokens gerados, a árvore sintática e o resultado da expressão.
+No código acima, o caso `help` exibe as expressões suportadas pelo compilador. O `exit` encerra o programa. Se o usuário digite a expressão, o programa chama a função `lexer::lex(input)` para realizar a análise léxica e a função `parser::parse(tokens)` para realizar a análise sintática e semântica. Em seguida, exibe os tokens gerados, a árvore sintática e o resultado da expressão.
 
 Ao chamar a função `lexer::lex(input)`, no código `lexer.rs`, o código passa a expressão do usuário em formato de string e cria um vetor de tokens. Segue o código abaixo:
 ```rust
@@ -99,7 +99,7 @@ pub fn lex(input: &str) -> Vec<Token> {
     // ( ... )
 }
 ```
-Em seguida, faz um push de INICIO no vetor de tokens (`tokens.push(Token::INICIO);`). Token é um enumeration que representa os tipos de tokens suportados pelo compilador. Segue o código do enumeration:
+Em seguida, faz um push de INICIO no vetor de tokens (`tokens.push(Token::INICIO);`). Token é um enumeration que representa os tipos de tokens suportados pelo compilador. Segue o código do enumeration abaixo:
 ```rust
 pub enum Token {
     INICIO,
@@ -118,13 +118,15 @@ O enumeration Token possui os seguintes tipos de tokens:
 - `Parentese(char)`: Representa um parêntese de abertura ou fechamento (, ) em formato de caractere
 - `FIM`: Representa o fim da expressão
 
-Em seguida o código faz um loop para percorrer os caracteres da expressão do usuário e identificar os tokens correspondentes.
+Em seguida o código faz um loop `while` para percorrer os caracteres da expressão do usuário e identificar os tokens correspondentes.
 ```rust
 while let Some(&caractere) = caracteres.peek() {
-        match caractere {( ... ) }
+        match caractere {
+        //( ... )
         }
+}
 ```
-Essa parte do código cima é parecido com um switch case, onde ele verifica o caractere atual e faz a ação correspondente. Segue o código que verifica o caractere atual:
+Essa parte do código acima `match` é parecido com um switch case, onde ele verifica o caractere atual e faz a ação correspondente. Segue o código que verifica o caractere atual:
 ```rust
 '=' => {
     caracteres.next();
@@ -142,6 +144,7 @@ Essa parte do código cima é parecido com um switch case, onde ele verifica o c
 ```
 No código acima, se o caractere atual for '=', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador("==") ao vetor de tokens. Caso contrário, ele adiciona o token Operador('=') ao vetor de tokens.
 
+Se o caractere atual for '>', '<' ou '!', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador(">=", "<=" ou "!=") ao vetor de tokens. Caso contrário, ele adiciona o token Comparador(">" ou "<") ao vetor de tokens. Segue o código abaixo:
 ```rust
 '>' | '<' | '!' => {
     caracteres.next();
@@ -155,7 +158,7 @@ No código acima, se o caractere atual for '=', o código verifica o próximo ca
     tokens.push(Token::Comparador(comparador));
 }
 ```
-Se o caractere atual for '>', '<' ou '!', o código verifica o próximo caractere. Se o próximo caractere for '=', ele adiciona o token Comparador(">=", "<=" ou "!=") ao vetor de tokens. Caso contrário, ele adiciona o token Comparador(">" ou "<") ao vetor de tokens.
+Se o caractere atual for um dígito (0-9) ou um ponto, o código cria uma string vazia chamada `numero` e faz um loop para percorrer os dígitos do número. Se o caractere atual for um dígito ou um ponto, ele adiciona o caractere à string `numero` e avança para o próximo caractere. Caso contrário, ele adiciona o token `Numero(numero.parse().unwrap())` ao vetor de tokens.
 
 ```rust
 '0'..='9' | '.' => {
@@ -171,7 +174,7 @@ Se o caractere atual for '>', '<' ou '!', o código verifica o próximo caracter
     tokens.push(Token::Numero(numero.parse().unwrap()));
 }
 ```
-Se o caractere atual for um dígito (0-9) ou um ponto, o código cria uma string vazia chamada `numero` e faz um loop para percorrer os dígitos do número. Se o caractere atual for um dígito ou um ponto, ele adiciona o caractere à string `numero` e avança para o próximo caractere. Caso contrário, ele adiciona o token `Numero(numero.parse().unwrap())` ao vetor de tokens.
+Se o caractere atual for um operador aritmético (+, -, *, /), o código adiciona o token `Operador(caractere)` ao vetor de tokens e avança para o próximo caractere.
 
 ```rust
 '+' | '-' | '*' | '/' => {
@@ -179,7 +182,7 @@ Se o caractere atual for um dígito (0-9) ou um ponto, o código cria uma string
     caracteres.next();
 }
 ```
-Se o caractere atual for um operador aritmético (+, -, *, /), o código adiciona o token `Operador(caractere)` ao vetor de tokens e avança para o próximo caractere.
+Se o caractere atual for um parêntese de abertura ou fechamento (, ), o código adiciona o token `Parentese(caractere)` ao vetor de tokens e avança para o próximo caractere.
 
 ```rust
 '(' | ')' => {
@@ -187,14 +190,14 @@ Se o caractere atual for um operador aritmético (+, -, *, /), o código adicion
     caracteres.next();
 }
 ```
-Se o caractere atual for um parêntese de abertura ou fechamento (, ), o código adiciona o token `Parentese(caractere)` ao vetor de tokens e avança para o próximo caractere.
+Se o caractere atual for um espaço, tabulação ou quebra de linha, o código ignora e avança para o próximo caractere.
 
 ```rust
 ' ' | '\t' | '\n' => {
     caracteres.next();
 }
 ```
-Se o caractere atual for um espaço, tabulação ou quebra de linha, o código ignora e avança para o próximo caractere.
+Se o caractere atual não corresponder a nenhum dos casos acima (`_`), o código exibe uma mensagem de erro em vermelho e limpa o vetor de tokens.
 
 ```rust
 _ => {
@@ -203,7 +206,7 @@ _ => {
     break;
 }
 ```
-Se o caractere atual não corresponder a nenhum dos casos acima (`_`), o código exibe uma mensagem de erro em vermelho e limpa o vetor de tokens.
+Ao finalizar loop, o código verifica se o vetor de tokens não está vazio devido a um erro. Se não estiver vazio, ele adiciona o token `FIM` ao vetor de tokens e retorna o vetor de tokens.
 
 ```rust
 if !tokens.is_empty() {
@@ -211,7 +214,6 @@ if !tokens.is_empty() {
     }
     tokens
 ```
-Ao finalizar loop, o código verifica se o vetor de tokens não está vazio devido a um erro. Se não estiver vazio, ele adiciona o token `FIM` ao vetor de tokens e retorna o vetor de tokens.
 
 **Referências:**
 
