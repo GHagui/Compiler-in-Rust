@@ -27,9 +27,14 @@ Além disso, suporta o uso de parênteses para definir a precedência das opera�
 - Diferente de
 
 ## Por que Rust?
-A linguagem Rust foi escolhida por ser moderna, segura e eficiente. Ao contrário de Java, Rust não utiliza um garbage collector, mas assegura a segurança de memória através do conceito de ownership. Isso ajuda a evitar problemas comuns em C e C++, oferecendo desempenho semelhante a essas linguagens.
+A linguagem Rust foi escolhida por ser moderna, segura e eficiente. Ao contrário de Java, Rust não utiliza um garbage collector, mas assegura a segurança de memória através do conceito de ownership. De acordo com a documentação oficial:
 
-Além disso, a Fundação Linux, a Microsoft e a Google estão investindo em Rust para o desenvolvimento de drivers, sistemas internos e até mesmo no Android, o que evidencia ainda mais o potencial da linguagem. É a oportunidade perfeita para aprender Rust e explorar suas capacidades.
+> "Ownership is a set of rules that govern how a Rust program manages memory. All programs have to manage the way they use a computer’s memory while running. Some languages have garbage collection that regularly looks for no-longer-used memory as the program runs; in other languages, the programmer must explicitly allocate and free the memory. Rust uses a third approach: memory is managed through a system of ownership with a set of rules that the compiler checks. If any of the rules are violated, the program won’t compile. None of the features of ownership will slow down your program while it’s running." ([Rust Book](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html))
+
+Isso ajuda a evitar problemas comuns em C e C++, oferecendo desempenho semelhante a essas linguagens. Além disso, a [Microsoft](https://opensource.microsoft.com/blog/2021/02/08/microsoft-joins-rust-foundation/) e a [Google](https://opensource.googleblog.com/2021/02/google-joins-rust-foundation.html) estão investindo em Rust para o desenvolvimento de drivers, sistemas internos e até mesmo no Windows e Android, o que evidencia ainda mais o potencial da linguagem.
+
+## Dependências e ferramentas
+Este projeto foi desenvolvido sem o uso de bibliotecas externas, apenas com as bibliotecas padrão do Rust. Nem ferramenta como ANTLR (Não tem suporte para Rust) ou Pest foi utilizada, pois o projeto é simples e não requer uma análise complexa da gramática já que é a calculadora básica.
 
 ## Etapas do compilador
 - Entrada de usuário (expressão matemática)
@@ -207,6 +212,13 @@ if !tokens.is_empty() {
     tokens
 ```
 Ao finalizar loop, o código verifica se o vetor de tokens não está vazio devido a um erro. Se não estiver vazio, ele adiciona o token `FIM` ao vetor de tokens e retorna o vetor de tokens.
+
+**Referências:**
+
+- RUST BOOK. Ownership. Disponível em: https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html. Acesso em: 05 set. 2024.
+- RUST DOCUMENTATION. Disponível em: https://doc.rust-lang.org/book/. Acesso em: 05 set. 2024.
+- GOOGLE. Google joins Rust Foundation. Disponível em: https://opensource.googleblog.com/2021/02/google-joins-rust-foundation.html. Acesso em: 16 set. 2024. 
+- MICROSOFT. Microsoft joins Rust Foundation. Disponível em: https://opensource.microsoft.com/blog/2021/02/08/microsoft-joins-rust-foundation/. Acesso em: 16 set. 2024.
 
 
 
