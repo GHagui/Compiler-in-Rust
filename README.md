@@ -47,7 +47,7 @@ Este projeto foi desenvolvido sem o uso de bibliotecas externas, apenas com as b
 O código foi dividido em módulos para facilitar a organização e manutenção. O módulo `lexer` é responsável por realizar a análise léxica, enquanto o módulo `parser` é responsável pela análise sintática e semântica.
 
 No código principal, a função `main` é responsável por receber a entrada do usuário, chamar a função `lexer::lex` para realizar a análise léxica e, em seguida, chamar a função `parser::parse` para realizar a análise sintática e semântica. Para começar, o código principal exibe uma mensagem ao usuário e entra em um loop para que o usuário possa digitar várias expressões sem precisar reiniciar o programa.
-No código `main.rs` abaixo:
+### main.rs
 ```rust
 fn main() {
     loop {
@@ -89,7 +89,8 @@ else {
 ```
 No código acima, o caso `help` exibe as expressões suportadas pelo compilador. O `exit` encerra o programa. Se o usuário digite a expressão, o programa chama a função `lexer::lex(input)` para realizar a análise léxica e a função `parser::parse(tokens)` para realizar a análise sintática e semântica. Em seguida, exibe os tokens gerados, a árvore sintática e o resultado da expressão.
 
-Ao chamar a função `lexer::lex(input)`, no código `lexer.rs`, o código passa a expressão do usuário em formato de string e cria um vetor de tokens. Segue o código abaixo:
+### lexer.rs
+Ao chamar a função `lexer::lex(input)`, o código passa a expressão do usuário em formato de string e cria um vetor de tokens. Segue o código abaixo:
 ```rust
 pub fn lex(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
@@ -215,6 +216,154 @@ if !tokens.is_empty() {
     }
     tokens
 ```
+
+Depois de chamar a função `lexer::lex(input)`, o código chama a função `parser::parse(&tokens)` para realizar a análise sintática e semântica. No código `parser.rs`, a função `parse` recebe um vetor de tokens e retorna um resultado em integer.
+
+### parser.rs
+
+A enumeração `Expr` é criada e usada para representar a árvore sintática da expressão. A enumeração possui os seguintes tipos de expressões:
+- `Numero(f64)`: Um número inteiro ou decimal em formato de ponto flutuante.
+- `Operacao(Box<Expr>, char, Box<Expr>)`: Box<Expr> é um ponteiro para uma expressão. A char é um operador aritmético (+, -, *, /).
+- `Comparacao(Box<Expr>, String, Box<Expr>)`: Box<Expr> é um ponteiro para uma expressão. A String é um operador de comparação (==, !=, >, <, >=, <=).
+```rust
+pub enum Expr {
+    Numero(f64),
+    Operacao(Box<Expr>, char, Box<Expr>),
+    Comparacao(Box<Expr>, String, Box<Expr>),
+}
+```
+
+Para iniciar por função `parse`, o código verifica se o vetor de tokens não está vazio. Se estiver vazio, ele retorna um erro. Depois disso, a variável `pos` é inicializada com 0 que representa a posição atual no vetor de tokens. Em seguida, o código verifica se o primeiro token é `INICIO`. Se não for, ele retorna um erro. Caso contrário, ele avança para o próximo token e chama a função `parse_comparacao(tokens, &mut pos)` para realizar a análise sintática e semântica da comparação. Se a função `parse_comparacao` retornar um erro, ele retorna o erro. Caso contrário, ele verifica se o último token é `FIM`. Se não for, ele retorna um erro. Caso contrário, ele retorna a expressão.
+
+```rust
+pub fn parse(tokens: &[Token]) -> Result<Expr, String> {
+    if tokens.is_empty() {
+        return Err("\x1b[31m    Erro: Expressão inválida na análise léxica. Digite 'help' para ver as expressões suportadas.\x1b[0m".to_string());
+    }
+    let mut pos = 0;
+    if let Some(Token::INICIO) = tokens.get(pos) {
+        pos += 1;
+        let expr = parse_comparacao(tokens, &mut pos)?;
+        if let Some(Token::FIM) = tokens.last() {
+            Ok(expr)
+        } else {
+            Err("Erro: Esperado FIM".to_string())
+        }
+    } else {
+        Err("Erro: Esperado INICIO".to_string())
+    }
+}
+```
+
+A função `parse_comparacao` recebe um vetor de tokens e uma variável `pos`. A função chama a função `parse_soma` para realizar a análise sintática e semântica da soma. Se o próximo token for `Token::Comparador`, avança `pos`, chama `parse_expressao` novamente e cria um Expr::Comparacao que representa a comparação entre as duas expressões.
+```rust
+fn parse_comparacao(tokens: &[Token], pos: &mut usize) -> Result<Expr, String> {
+    let mut expr = parse_expressao(tokens, pos)?;
+
+    if let Some(Token::Comparador(op)) = tokens.get(*pos) {
+        *pos += 1;
+        let rhs = parse_expressao(tokens, pos)?;
+        expr = Expr::Comparacao(Box::new(expr), op.clone(), Box::new(rhs));
+    }
+
+    Ok(expr)
+}
+```
+A função `parse_termo` trata operações de multiplicação e divisão, que têm maior precedência. Ela inicia chamando `parse_fator` para analisar o primeiro fator. Em seguida, em um loop, verifica se o próximo token é um operador `*` ou `/`. Se for, avança `pos`, analisa o próximo fator e cria uma operação com `criar_operacao`.
+```rust
+fn parse_termo(tokens: &[Token], pos: &mut usize) -> Result<Expr, String> {
+    let mut expr = parse_fator(tokens, pos)?;
+
+    while let Some(token) = tokens.get(*pos) {
+        match token {
+            Token::Operador('*') | Token::Operador('/') => {
+                *pos += 1;
+                let rhs = parse_fator(tokens, pos)?;
+                expr = criar_operacao(expr, token, rhs);
+            }
+            _ => break,
+        }
+    }
+
+    Ok(expr)
+}
+```
+A função `parse_fator` trata números e expressões entre parênteses. Se o próximo token for um número, cria uma expressão `Expr::Numero`. Se for um parêntese de abertura, avança `pos`, chama `parse_comparacao` e verifica se o próximo token é um parêntese de fechamento. Se não for, retorna um erro.
+```rust
+fn parse_fator(tokens: &[Token], pos: &mut usize) -> Result<Expr, String> {
+    match tokens.get(*pos) {
+        Some(Token::Numero(n)) => {
+            *pos += 1;
+            Ok(Expr::Numero(*n))
+        }
+        Some(Token::Parentese('(')) => {
+            *pos += 1;
+            let expr = parse_expressao(tokens, pos)?;
+            if let Some(Token::Parentese(')')) = tokens.get(*pos) {
+                *pos += 1;
+                Ok(expr)
+            } else {
+                Err("Erro: Esperado ')'".to_string())
+            }
+        }
+        _ => Err("Erro: Fator inválido".to_string()),
+    }
+}
+```
+A função `criar_operacao` recebe uma expressão, um token e rhs e cria uma expressão `Expr::Operacao` que representa a operação entre as duas expressões.
+```rust
+pub fn criar_operacao(expr: Expr, token: &Token, rhs: Expr) -> Expr {
+    Expr::Operacao(
+        Box::new(expr),
+        if let Token::Operador(op) = token { *op } else { unreachable!() },
+        Box::new(rhs),
+    )
+}
+```
+A função `avaliar` recebe uma expressão e avalia o resultado da expressão. Se a expressão for um número, retorna o número. Se a expressão for uma operação, avalia a operação e retorna o resultado. Se a expressão for uma comparação, avalia a comparação e retorna 1.0 se a comparação for verdadeira e 0.0 se for falsa.
+```rust
+pub fn avaliar(expr: &Expr) -> f64 {
+    match expr {
+        Expr::Numero(n) => *n,
+        Expr::Operacao(lhs, op, rhs) => {
+            let lhs_val = avaliar(lhs);
+            let rhs_val = avaliar(rhs);
+            match op {
+                '+' => lhs_val + rhs_val,
+                '-' => lhs_val - rhs_val,
+                '*' => lhs_val * rhs_val,
+                '/' => lhs_val / rhs_val,
+                _ => {
+                    eprintln!("\x1b[31mErro: Operador aritmético inválido\x1b[0m");
+                    0.0
+                }
+            }
+        }
+        Expr::Comparacao(lhs, op, rhs) => {
+            let lhs_val = avaliar(lhs);
+            let rhs_val = avaliar(rhs);
+            match op.as_str() {
+                "==" => if (lhs_val - rhs_val).abs() < f64::EPSILON { 1.0 } else { 0.0 },
+                "!=" => if (lhs_val - rhs_val).abs() >= f64::EPSILON { 1.0 } else { 0.0 },
+                ">"  => if lhs_val > rhs_val { 1.0 } else { 0.0 },
+                "<"  => if lhs_val < rhs_val { 1.0 } else { 0.0 },
+                ">=" => if lhs_val >= rhs_val { 1.0 } else { 0.0 },
+                "<=" => if lhs_val <= rhs_val { 1.0 } else { 0.0 },
+                _ => {
+                    eprintln!("\x1b[31mErro: Operador de comparação inválido\x1b[0m");
+                    0.0
+                }
+            }
+        }
+    }
+}
+```
+## Fluxo de Análise Sintática
+1. `parse`: Verifica tokens iniciais e finais, inicia análise com parse_comparacao.
+2. `parse_comparacao`: Analisa expressões com comparadores.
+3. `parse_expressao`: Analisa adições e subtrações.
+4. `parse_termo`: Analisa multiplicações e divisões.
+5. `parse_fator`: Analisa números e expressões entre parênteses.
 
 **Referências:**
 
